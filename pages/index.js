@@ -20,18 +20,22 @@ const WalletDisconnectButtonDynamic = dynamic(
 export default function Home() {
   const wallet = useWallet()
   const [connected, setConnected] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [address, setAddress] = useState("")
   const [degenScore, setDegenScore] = useState(0)
   const [nameTags, setNameTags] = useState([])
 
-  useEffect(() => {
-    const analyzeWallet = async (address) => {
-      const res = await axios.post("/api/analyze_wallet", {
-        wallet_address: address
-      })
-      setDegenScore(res.data.degen_score)
-      setNameTags(res.data.name_tags)
-    }
+  const analyzeWallet = async (_address) => {
+    setLoading(true)
+    const res = await axios.post("/api/analyze_wallet", {
+      wallet_address: _address
+    })
+    setLoading(false)
+    setDegenScore(res.data.degen_score)
+    setNameTags(res.data.name_tags)
+  }
 
+  useEffect(() => {
     if (wallet.connected) {
       setConnected(true)
       analyzeWallet(wallet.publicKey.toString())
@@ -52,13 +56,16 @@ export default function Home() {
       <div className={styles.nav_title}>
         <h1>C🤪INSENSE!</h1>
       </div>
-      {connected ? (
+      {nameTags.length > 0 ? (
         <div className={styles.box}>
           <p className={styles.degen_score}>{degenScore}<span className={styles.total_score}>/700</span></p>
           <p className={styles.box_title}>DEGEN SCORE</p>
           {nameTags.length > 0 ? <p className={styles.box_desc}>You are a <span>{nameTags[0]}</span>. <span>A {nameTags[1]}</span>, if you will.</p> : "Loading..."}
           <div className={styles.buttons}>
-            <WalletDisconnectButtonDynamic className={styles.auth_btn} />
+            {connected ? <WalletDisconnectButtonDynamic className={styles.auth_btn} /> : <button onClick={() => {
+              setDegenScore(0)
+              setNameTags([])
+            }} className={styles.auth_btn}>Go Back</button>}
             <button onClick={() => {
               window.open(`https://translator.shyft.to/address/${wallet.publicKey.toString()}`, '_blank').focus();
             }}>
@@ -68,10 +75,20 @@ export default function Home() {
         </div>
       ) :
         <div className={styles.box}>
-          <p className={styles.cta}>Connect your wallet to get started!</p>
+          <p className={styles.cta}>{ !loading ? "Connect your wallet to get started!" : "Loading..." }</p>
           {/* <button>Connect</button> */}
           <WalletMultiButtonDynamic>Connect</WalletMultiButtonDynamic>
+          <p className={styles.or}>OR</p>
+          <form onSubmit={e => {
+            e.preventDefault()
+            analyzeWallet(address)
+          }}>
+            <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Enter address" className={styles.input} />
+          </form>
         </div>}
+      <div className={styles.links}>
+        <a target="_blank" href="https://github.com/yummyweb/coinsense">GitHub</a> | <a target="_blank" href="https://twitter.com/AntarikshaVerm2">Twitter</a>
+      </div>
     </div>
   )
 }
