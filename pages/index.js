@@ -70,7 +70,7 @@ export default function Home() {
         <div className={styles.box}>
           <p className={styles.cta}>Connect your wallet to get started!</p>
           {/* <button>Connect</button> */}
-          <WalletMultiButtonDynamic children="Connect" />
+          <WalletMultiButtonDynamic>Connect</WalletMultiButtonDynamic>
         </div>}
     </div>
   )
