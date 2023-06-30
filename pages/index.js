@@ -6,6 +6,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { ArrowSquareOut } from '@phosphor-icons/react'
+import { Connection, Transaction, clusterApiUrl } from '@solana/web3.js'
 
 const WalletMultiButtonDynamic = dynamic(
   async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
@@ -45,6 +46,33 @@ export default function Home() {
     }
   }, [wallet])
 
+  const mintNFT = async address => {
+    const connection = new Connection(clusterApiUrl("devnet"), 'confirmed')
+
+    const res = await axios.post("/api/create_nft", {
+      score: degenScore,
+      address
+    })
+    const nftAddress = res.data.mint
+    const recoveredTransaction = Transaction.from(Buffer.from(res.data.tx, 'base64'))
+    const signed = await wallet.signTransaction(recoveredTransaction)
+    const txnSignature = await connection.sendRawTransaction(
+      signed.serialize()
+    )
+    console.log(txnSignature)
+
+    const nftRes = await axios.post("/api/mint_nft", {
+      nftAddress,
+      address
+    })
+    const mintTransaction = Transaction.from(Buffer.from(nftRes.data.tx, 'base64'))
+    const mintSigned = await wallet.signTransaction(mintTransaction)
+    const mintTxSignature = await connection.sendRawTransaction(
+      mintSigned.serialize()
+    )
+    console.log(mintTxSignature)
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -72,6 +100,7 @@ export default function Home() {
               <ArrowSquareOut size={28} color="white" weight="light" />
             </button>
           </div>
+          { connected ? <button onClick={() => mintNFT(wallet.publicKey.toString())}>Mint your DegeNFT</button> : null }
         </div>
       ) :
         <div className={styles.box}>
