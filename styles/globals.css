@@ -1,9 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-image: radial-gradient(circle,
+      rgb(166, 59, 233) 0%,
+      rgb(145, 33, 214) 35%,
+      rgba(58, 13, 85, 1) 100%);
+  font-family: 'Baloo 2', cursive;
+  color: white;
 }
 
 a {
@@ -13,14 +21,6 @@ a {
 
 * {
   box-sizing: border-box;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
+  padding: 0;
+  margin: 0;
 }
